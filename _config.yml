@@ -1,0 +1,44 @@
+# GitHub Pages Configuration for Antares Intelligence
+title: "Antares Intelligence - Custom AI Agents. Infinite Potential."
+description: "Transform your business with custom AI agents. Automate engineering, project ops, accounting, sales & more—tailored end-to-end for SMBs."
+url: "https://antaresintelligence.github.io"
+baseurl: "/Antares-Intelligence"
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+theme: minima
+
+# Exclude files from processing
+exclude:
+  - vendor/
+  - Gemfile
+  - Gemfile.lock
+  - node_modules/
+  - .sass-cache/
+  - .jekyll-cache/
+  - gemfiles/
+
+# Include files
+include:
+  - _redirects
+
+# SEO and Social
+author: "Antares Intelligence"
+twitter:
+  username: AntaresAI
+  card: summary_large_image
+
+social:
+  name: Antares Intelligence
+  links:
+    - https://github.com/AntaresIntelligence
+
+# Google Analytics (add your tracking ID)
+# google_analytics: GA_TRACKING_ID
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
