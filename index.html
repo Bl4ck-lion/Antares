@@ -2,34 +2,63 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antares Intelligence - Custom AI Agents. Infinite Potential.</title>
-    <meta name="description" content="Transform your business with custom AI agents. Automate engineering, project ops, accounting, sales & more—tailored end-to-end for SMBs.">
-    
-    <!-- Tailwind CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>Custom AI Agents. Infinite Potential.</title>
+    <meta name="description" content="Transform your business with custom AI agents. Automate engineering, project ops, accounting, sales & more tailored end to end for SMBs.">
+    <link rel="icon" type="image/png" href="Antares Intelligence Logo.png">
+      <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Three.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     
     <!-- React & React DOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
-    <!-- Babel for JSX -->
+      <!-- Babel for JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+      <!-- Calendly -->    <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
     
-    <!-- Calendly -->
-    <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
+    <!-- Flowise Chatbot -->
+    <script type="module">
+        import Chatbot from "https://cdn.jsdelivr.net/npm/flowise-embed/dist/web.js"
+        Chatbot.init({
+            chatflowid: "75e6cc05-010a-4f28-8cf5-82b705600e9d",
+            apiHost: "https://flowise-gk99.onrender.com",
+        })
+    </script>
     
-    <!-- Custom styles -->
+      <!-- Custom styles -->
     <style>
         @keyframes scroll {
             0% { transform: translateX(0); }
             100% { transform: translateX(-50%); }
         }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+          @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(245, 158, 11, 0.6); }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
         .animate-scroll {
             animation: scroll 30s linear infinite;
+        }
+        
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .animate-glow {
+            animation: glow 2s ease-in-out infinite;
+        }
+        
+        .animate-slideUp {
+            animation: slideUp 0.6s ease-out forwards;
         }
         
         .calendly-inline-widget {
@@ -39,12 +68,28 @@
         
         html {
             scroll-behavior: smooth;
-        }
-        
-        body {
+        }        body {
             margin: 0;
             padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(to bottom right, #111827, #1f2937, #7c2d12);
+            min-height: 100vh;
+        }
+          /* Custom hover effects */
+        .service-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .feature-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        /* Ensure all sections are above background */
+        section {
+            position: relative;
+            z-index: 20;
         }
     </style>
 </head>
@@ -52,266 +97,248 @@
     <div id="root"></div>
     
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
-        
-        // AI Core Cube Component using native Three.js
-        function AICube({ scrollY }) {
-            const mountRef = useRef();
-            const sceneRef = useRef();
-            const rendererRef = useRef();
-            const cameraRef = useRef();
-            const cubeRef = useRef();
-            const animationIdRef = useRef();
-            
-            useEffect(() => {
-                if (!mountRef.current) return;
-                
-                // Scene setup
-                const scene = new THREE.Scene();
-                const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-                const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-                
-                renderer.setSize(400, 400);
-                renderer.setClearColor(0x000000, 0);
-                mountRef.current.appendChild(renderer.domElement);
-                
-                // Create cube group
-                const cubeGroup = new THREE.Group();
-                
-                // Main cube
-                const geometry = new THREE.BoxGeometry(3, 3, 3);
-                const material = new THREE.MeshStandardMaterial({
-                    color: 0x6366F1,
-                    metalness: 0.8,
-                    roughness: 0.2,
-                    emissive: 0x1E1B4B,
-                    emissiveIntensity: 0.2
-                });
-                const cube = new THREE.Mesh(geometry, material);
-                cubeGroup.add(cube);
-                
-                // Panel pieces
-                for (let i = 0; i < 6; i++) {
-                    const panelGeometry = new THREE.BoxGeometry(0.5, 3, 3);
-                    const panelMaterial = new THREE.MeshStandardMaterial({
-                        color: 0xC084FC,
-                        metalness: 0.9,
-                        roughness: 0.1,
-                        transparent: true,
-                        opacity: 0.8
-                    });
-                    const panel = new THREE.Mesh(panelGeometry, panelMaterial);
-                    cubeGroup.add(panel);
-                }
-                
-                // Inner core sphere
-                const sphereGeometry = new THREE.SphereGeometry(1.5, 32, 32);
-                const sphereMaterial = new THREE.MeshStandardMaterial({
-                    color: 0x7C3AED,
-                    emissive: 0x7C3AED,
-                    emissiveIntensity: 0.3,
-                    transparent: true,
-                    opacity: 0.6
-                });
-                const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-                cubeGroup.add(sphere);
-                
-                scene.add(cubeGroup);
-                
-                // Lighting
-                const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
-                scene.add(ambientLight);
-                
-                const pointLight = new THREE.PointLight(0xffffff, 1, 100);
-                pointLight.position.set(10, 10, 10);
-                scene.add(pointLight);
-                
-                const pointLight2 = new THREE.PointLight(0xC084FC, 0.5, 100);
-                pointLight2.position.set(-10, -10, -10);
-                scene.add(pointLight2);
-                
-                camera.position.z = 5;
-                
-                sceneRef.current = scene;
-                rendererRef.current = renderer;
-                cameraRef.current = camera;
-                cubeRef.current = cubeGroup;
-                
-                return () => {
-                    if (mountRef.current && renderer.domElement) {
-                        mountRef.current.removeChild(renderer.domElement);
-                    }
-                    if (animationIdRef.current) {
-                        cancelAnimationFrame(animationIdRef.current);
-                    }
-                };
-            }, []);
-            
-            useEffect(() => {
-                if (!sceneRef.current || !rendererRef.current || !cameraRef.current || !cubeRef.current) return;
-                
-                const animate = () => {
-                    if (cubeRef.current) {
-                        const time = Date.now() * 0.001;
-                        cubeRef.current.rotation.x = scrollY * 0.01 + time * 0.1;
-                        cubeRef.current.rotation.y = scrollY * 0.01 + time * 0.15;
-                        
-                        // Panels opening effect
-                        const openAmount = Math.min(scrollY * 0.002, 1);
-                        cubeRef.current.children.forEach((child, index) => {
-                            if (index > 0 && index < 7) { // Skip main cube and sphere
-                                const direction = index % 2 === 0 ? 1 : -1;
-                                child.position.x = Math.sin(index * Math.PI / 3) * openAmount * 2 * direction;
-                                child.position.y = Math.cos(index * Math.PI / 3) * openAmount * 2 * direction;
-                            }
-                        });
-                    }
-                    
-                    rendererRef.current.render(sceneRef.current, cameraRef.current);
-                    animationIdRef.current = requestAnimationFrame(animate);
-                };
-                
-                animate();
-                
-                return () => {
-                    if (animationIdRef.current) {
-                        cancelAnimationFrame(animationIdRef.current);
-                    }
-                };
-            }, [scrollY]);
-        
+        const { useState, useEffect, useRef } = React;        // Interactive Service Card Component
+        function ServiceCard({ service, index, isVisible }) {
             return React.createElement('div', {
-                ref: mountRef,
-                className: 'w-full h-full flex items-center justify-center'
-            });
-        }
-        
-        // Floating particles using CSS
-        function Particles() {
-            const particleCount = 50;
+                className: 'group relative h-80',
+                style: { transitionDelay: isVisible ? `${index * 100}ms` : '0ms' }
+            }, [
+                React.createElement('div', {
+                    key: 'card',
+                    className: 'bg-white/20 backdrop-blur-xl p-8 rounded-lg border border-white/30 hover:border-amber-500/70 hover:bg-white/25 transition-all duration-300 transform hover:scale-105 h-full flex flex-col justify-between shadow-2xl hover:shadow-amber-500/20'
+                }, [
+                    React.createElement('div', {
+                        key: 'content-section',
+                        className: 'flex-grow'
+                    }, [
+                        React.createElement('div', {
+                            key: 'icon',
+                            className: 'text-4xl text-amber-500 mb-4'
+                        }, service.icon),
+                        React.createElement('h3', {
+                            key: 'title',
+                            className: 'text-xl font-bold text-white mb-3'
+                        }, service.title),
+                        React.createElement('p', {
+                            key: 'description',
+                            className: 'text-gray-300 mb-6 italic leading-relaxed'
+                        }, service.description)
+                    ]),
+                    
+                    React.createElement('div', {
+                        key: 'bottom-section',
+                        className: 'border-t border-gray-700 pt-4 mt-auto'
+                    }, [                        React.createElement('div', {
+                            key: 'feature-highlight',
+                            className: 'text-amber-400 font-bold text-lg'
+                        }, 'Powered by AI-Agents')
+                    ])
+                ])
+            ]);
+        }// Simple animated background particles
+        function BackgroundAnimation() {
+            const particleCount = 30;
             
             return React.createElement('div', {
                 className: 'absolute inset-0 overflow-hidden pointer-events-none'
-            }, Array.from({ length: particleCount }).map((_, i) => 
-                React.createElement('div', {
-                    key: i,
-                    className: 'absolute w-1 h-1 bg-yellow-400 rounded-full animate-pulse',
-                    style: {
-                        left: `${Math.random() * 100}%`,
-                        top: `${Math.random() * 100}%`,
-                        animationDelay: `${Math.random() * 3}s`,
-                        animationDuration: `${2 + Math.random() * 2}s`
-                    }
-                })
-            ));
-        }
-        
-        // Service Planet Component using CSS 3D transforms
-        function ServicePlanet({ position, color, label, description, isHovered, onHover, index }) {
-            const angle = (index / 6) * Math.PI * 2;
-            const radius = 200;
-            const x = Math.cos(angle) * radius;
-            const y = Math.sin(angle) * radius;
-        
-            return React.createElement('div', {
-                className: 'absolute cursor-pointer transition-all duration-300 transform-gpu',
-                style: {
-                    left: '50%',
-                    top: '50%',
-                    transform: `translate(${x - 25}px, ${y - 25}px) scale(${isHovered ? 1.5 : 1})`,
-                    zIndex: isHovered ? 10 : 1
-                },
-                onMouseEnter: () => onHover(true),
-                onMouseLeave: () => onHover(false)
             }, [
+                // Gradient overlay
                 React.createElement('div', {
-                    key: 'planet',
-                    className: 'w-12 h-12 rounded-full shadow-lg animate-pulse',
+                    key: 'gradient',
+                    className: 'absolute inset-0 bg-gradient-to-br from-gray-900/50 via-gray-800/30 to-amber-900/20'
+                }),
+                // Floating particles
+                ...Array.from({ length: particleCount }).map((_, i) => 
+                    React.createElement('div', {
+                        key: i,
+                        className: 'absolute w-1 h-1 bg-amber-400/40 rounded-full animate-pulse',
+                        style: {
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                            animationDelay: `${Math.random() * 3}s`,
+                            animationDuration: `${2 + Math.random() * 2}s`
+                        }
+                    })
+                ),
+                // Moving gradients
+                React.createElement('div', {
+                    key: 'moving-gradient-1',
+                    className: 'absolute w-96 h-96 bg-amber-500/10 rounded-full blur-3xl animate-pulse',
                     style: {
-                        background: `linear-gradient(135deg, ${color}, ${color}80)`,
-                        boxShadow: `0 0 20px ${color}40`
+                        top: '20%',
+                        left: '10%',
+                        animationDuration: '4s'
                     }
                 }),
-                isHovered && React.createElement('div', {
-                    key: 'tooltip',
-                    className: 'absolute top-16 left-1/2 transform -translate-x-1/2 bg-black/90 text-white p-4 rounded-lg backdrop-blur-sm border border-gray-600 w-64 z-20'
-                }, [
-                    React.createElement('h3', {
-                        key: 'title',
-                        className: 'font-semibold text-lg mb-2'
-                    }, label),
-                    React.createElement('p', {
-                        key: 'desc',
-                        className: 'text-sm text-gray-300'
-                    }, description)
-                ])
+                React.createElement('div', {
+                    key: 'moving-gradient-2',
+                    className: 'absolute w-80 h-80 bg-orange-500/10 rounded-full blur-3xl animate-pulse',
+                    style: {
+                        bottom: '20%',
+                        right: '10%',
+                        animationDuration: '3s',
+                        animationDelay: '1s'
+                    }
+                })
             ]);
         }
-        
-        // Service Galaxy Component using CSS 3D transforms
-        function ServiceGalaxy() {
-            const [hoveredPlanet, setHoveredPlanet] = useState(null);
-            const [rotation, setRotation] = useState(0);
+          // Interactive Services Grid
+        function ServicesGrid() {
+            const [isVisible, setIsVisible] = useState(false);
             
             useEffect(() => {
-                const interval = setInterval(() => {
-                    setRotation(prev => prev + 0.5);
-                }, 50);
-                return () => clearInterval(interval);
-            }, []);
-            
-            const services = [
-                { label: "Engineering Automation", color: "#FF6B6B", description: "Automate your development workflow" },
-                { label: "Project Management", color: "#4ECDC4", description: "AI-powered project orchestration" },
-                { label: "Large-Contract Ops", color: "#45B7D1", description: "Streamline complex operations" },
-                { label: "Accounting & Finance", color: "#96CEB4", description: "Intelligent financial management" },
-                { label: "Sales & Marketing", color: "#FFEAA7", description: "AI-driven growth strategies" },
-                { label: "Customer Support", color: "#DDA0DD", description: "24/7 intelligent assistance" }
+                const timer = setTimeout(() => setIsVisible(true), 300);
+                return () => clearTimeout(timer);
+            }, []);            const services = [
+                {
+                    title: "Engineering Automation",
+                    description: "Streamline your development workflow with intelligent code generation, testing, and deployment automation.",
+                    icon: "⚙️",
+                    gradient: "from-gray-800/50 to-gray-900/50"
+                },
+                {
+                    title: "Project Management",
+                    description: "AI-powered project orchestration that keeps teams aligned and deliverables on track.",
+                    icon: "📋",
+                    gradient: "from-gray-800/50 to-gray-900/50"
+                },
+                {
+                    title: "Large-Contract Ops",
+                    description: "Navigate complex operations with intelligent process optimization and risk management.",
+                    icon: "📈",
+                    gradient: "from-gray-800/50 to-gray-900/50"
+                },
+                {
+                    title: "Accounting & Finance",
+                    description: "Intelligent financial management with automated reporting and predictive analytics.",
+                    icon: "💰",
+                    gradient: "from-gray-800/50 to-gray-900/50"
+                },
+                {
+                    title: "Sales & Marketing",
+                    description: "AI-driven growth strategies that convert leads and maximize customer lifetime value.",
+                    icon: "🚀",
+                    gradient: "from-gray-800/50 to-gray-900/50"
+                },
+                {
+                    title: "Customer Support",
+                    description: "24/7 intelligent assistance that scales with your business and delights customers.",
+                    icon: "🎯",
+                    gradient: "from-gray-800/50 to-gray-900/50"
+                }
             ];
-        
-            return React.createElement('div', {
-                className: 'h-screen relative overflow-hidden bg-gradient-to-b from-black to-gray-900'
+              return React.createElement('div', {
+                className: ''
             }, [
                 React.createElement('div', {
-                    key: 'galaxy',
-                    className: 'absolute inset-0 flex items-center justify-center',
-                    style: { transform: `rotate(${rotation}deg)` }
-                }, [
-                    // Central Antares Star
-                    React.createElement('div', {
-                        key: 'star',
-                        className: 'absolute w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full shadow-2xl animate-pulse',
-                        style: { boxShadow: '0 0 40px #FFD700' }
-                    }),
-                    // Orbiting Service Planets
-                    ...services.map((service, index) => 
-                        React.createElement(ServicePlanet, {
-                            key: service.label,
-                            index: index,
-                            color: service.color,
-                            label: service.label,
-                            description: service.description,
-                            isHovered: hoveredPlanet === index,
-                            onHover: (hovered) => setHoveredPlanet(hovered ? index : null)
-                        })
-                    )
-                ])
+                    key: 'services-header',
+                    className: 'text-center mb-16'
+                }, [                    React.createElement('h2', {
+                        key: 'services-title',
+                        className: 'text-4xl md:text-5xl font-bold mb-6 text-amber-500'
+                    }, 'AI-Powered Solutions'),
+                    React.createElement('p', {
+                        key: 'services-subtitle',
+                        className: 'text-xl text-gray-300 max-w-3xl mx-auto'
+                    }, 'Transform every aspect of your business with intelligent automation tailored to your needs.')
+                ]),
+                
+                React.createElement('div', {
+                    key: 'services-grid',
+                    className: 'max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'
+                }, services.map((service, index) => 
+                    React.createElement(ServiceCard, {
+                        key: index,
+                        service: service,
+                        index: index,
+                        isVisible: isVisible
+                    })
+                ))
             ]);
         }
-        
+          // Navigation Bar Component
+        function Navbar() {
+            const [isScrolled, setIsScrolled] = useState(false);
+
+            useEffect(() => {
+                const handleScroll = () => {
+                    setIsScrolled(window.scrollY > 50);
+                };
+                window.addEventListener('scroll', handleScroll);
+                return () => window.removeEventListener('scroll', handleScroll);
+            }, []);            return React.createElement('nav', {
+                className: `fixed top-0 left-0 right-0 z-50 transition-all duration-150 ${
+                    isScrolled 
+                        ? 'bg-black/90 backdrop-blur-md border-b border-gray-800' 
+                        : 'bg-transparent'
+                }`
+            },
+                React.createElement('div', {
+                    className: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'
+                }, 
+                    React.createElement('div', {
+                        className: 'flex items-center justify-between h-16'
+                    }, [                        // Logo/Brand
+                        React.createElement('div', {
+                            key: 'brand',
+                            className: 'flex items-center space-x-3'
+                        }, [
+                            React.createElement('img', {
+                                key: 'logo',
+                                src: 'Antares Intelligence Logo.png',
+                                alt: 'Antares Intelligence Logo',
+                                className: 'h-8 w-8'
+                            }),
+                            React.createElement('span', {
+                                key: 'brand-text',
+                                className: 'text-2xl text-white'
+                            }, 'Antares Intelligence')
+                        ]),
+                        
+                        // Navigation Links
+                        React.createElement('div', {
+                            key: 'nav-links',
+                            className: 'hidden md:flex items-center space-x-8'
+                        }, [
+                            React.createElement('a', {
+                                key: 'solutions',
+                                href: '#solutions',
+                                className: 'text-gray-300 hover:text-amber-400 transition-colors duration-200'
+                            }, 'Solutions'),                            React.createElement('a', {
+                                key: 'benefits',
+                                href: '#benefits',
+                                className: 'text-gray-300 hover:text-amber-400 transition-colors duration-200'
+                            }, 'Benefits'),
+                            // Testimonials link temporarily hidden until Success Stories content is added
+                            /*
+                            React.createElement('a', {
+                                key: 'testimonials',
+                                href: '#testimonials',
+                                className: 'text-gray-300 hover:text-amber-400 transition-colors duration-200'
+                            }, 'Testimonials'),
+                            */
+                            React.createElement('a', {
+                                key: 'contact',
+                                href: '#contact',
+                                className: 'bg-amber-500 hover:bg-amber-600 text-black px-4 py-2 rounded-lg font-medium transition-colors duration-200'
+                            }, 'Get Started')
+                        ])
+                    ])
+                )
+            );
+        }
+
         // Main Landing Page Component
         function AntaresLanding() {
             const [scrollY, setScrollY] = useState(0);
-        
+
             useEffect(() => {
                 const handleScroll = () => setScrollY(window.scrollY);
                 window.addEventListener('scroll', handleScroll);
                 return () => window.removeEventListener('scroll', handleScroll);
-            }, []);
-        
-            const stats = [
-                { value: "87%", label: "Efficiency Increase" },
-                { value: "$2.3M", label: "Revenue Generated" },
+            }, []);            const stats = [
+                { value: "$1.7M", label: "Lost annually to inefficiency" },
+                { value: "31%", label: "Efficiency Increase" },
                 { value: "45h", label: "Time Saved Weekly" },
                 { value: "99.9%", label: "Uptime Guarantee" }
             ];
@@ -332,74 +359,129 @@
                     author: "Dr. Lisa Park, Founder of MedTech Solutions",
                     metric: "99.8% accuracy rate"
                 }
-            ];
-        
-            return React.createElement('div', {
-                className: 'bg-black text-white overflow-x-hidden'
-            }, [
-                // Hero Section
+            ];            return React.createElement('div', {
+                className: 'text-white overflow-x-hidden relative min-h-screen z-10'
+            }, [// Global background animation
+                React.createElement('div', {
+                    key: 'global-background',
+                    className: 'fixed inset-0 pointer-events-none z-[-10]'
+                }, [React.createElement('div', {
+                        key: 'global-gradient',
+                        className: 'absolute inset-0 bg-gradient-to-br from-black/90 via-black/70 to-amber-900/10'
+                    }),
+                    // Moving gradients for the whole page
+                    React.createElement('div', {
+                        key: 'global-moving-gradient-1',
+                        className: 'absolute w-96 h-96 bg-amber-500/3 rounded-full blur-3xl animate-pulse',
+                        style: {
+                            top: '20%',
+                            left: '10%',
+                            animationDuration: '6s'
+                        }
+                    }),
+                    React.createElement('div', {
+                        key: 'global-moving-gradient-2',
+                        className: 'absolute w-80 h-80 bg-orange-500/3 rounded-full blur-3xl animate-pulse',
+                        style: {
+                            top: '60%',
+                            right: '10%',
+                            animationDuration: '8s'
+                        }
+                    })
+                ]),
+                  // Navigation Bar
+                React.createElement(Navbar, { key: 'navbar' }),// Hero Section
                 React.createElement('section', {
                     key: 'hero',
-                    className: 'h-screen relative overflow-hidden'
+                    className: 'relative overflow-hidden flex items-center justify-center pt-16',
+                    style: { minHeight: 'calc(100vh + 4rem)' }
                 }, [
-                    React.createElement('div', {
-                        key: 'hero-bg',
-                        className: 'absolute inset-0 bg-gradient-to-br from-blue-900/20 to-purple-900/20'
-                    }, [
-                        React.createElement(Particles, { key: 'particles' }),
-                        React.createElement('div', {
-                            key: 'cube-container',
-                            className: 'absolute inset-0 flex items-center justify-center'
-                        }, [
-                            React.createElement('div', {
-                                key: 'cube-wrapper',
-                                className: 'w-96 h-96'
-                            }, [
-                                React.createElement(AICube, { key: 'cube', scrollY: scrollY })
-                            ])
-                        ])
-                    ]),
+                    React.createElement(BackgroundAnimation, { key: 'bg-animation' }),
                     
                     React.createElement('div', {
                         key: 'hero-content',
-                        className: 'relative z-10 h-full flex items-center justify-center text-center px-4'
-                    }, [
+                        className: 'relative z-10 text-center px-4 max-w-6xl mx-auto'
+                    }, [                        React.createElement('h1', {
+                            key: 'title',
+                            className: 'text-4xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-amber-400 via-orange-500 to-yellow-500 bg-clip-text text-transparent animate-pulse'
+                        }, 'Custom AI Agents. Infinite Potential.'),
+                        React.createElement('p', {
+                            key: 'subtitle',
+                            className: 'text-xl md:text-3xl text-gray-300 mb-12 font-light opacity-90'
+                        }, 'Automate engineering, project ops, accounting, sales & more—tailored end-to-end for SMBs.'),
+                        
                         React.createElement('div', {
-                            key: 'hero-text',
-                            className: 'max-w-6xl mx-auto'
-                        }, [
-                            React.createElement('h1', {
-                                key: 'title',
-                                className: 'text-4xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent'
-                            }, 'Custom AI Agents. Infinite Potential.'),
-                            React.createElement('p', {
-                                key: 'subtitle',
-                                className: 'text-xl md:text-3xl text-gray-300 mb-12 font-light'
-                            }, 'Automate engineering, project ops, accounting, sales & more—tailored end-to-end for SMBs.'),
-                            
-                            React.createElement('div', {
-                                key: 'cta-buttons',
-                                className: 'flex flex-col sm:flex-row gap-6 justify-center items-center'
+                            key: 'cta-buttons',
+                            className: 'flex flex-col sm:flex-row gap-6 justify-center items-center mb-16'
+                        }, [                            React.createElement('button', {
+                                key: 'primary-cta',
+                                className: 'group relative px-8 py-4 bg-gradient-to-r from-amber-600 to-orange-600 rounded-full text-lg font-semibold hover:from-amber-500 hover:to-orange-500 transition-all duration-300 transform hover:scale-105',
+                                onClick: () => window.open('https://calendly.com/admin-antaresintelligence/30min', '_blank')
                             }, [
-                                React.createElement('button', {
-                                    key: 'primary-cta',
-                                    className: 'group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full text-lg font-semibold hover:from-blue-500 hover:to-purple-500 transition-all duration-300 transform hover:scale-105',
-                                    onClick: () => document.getElementById('conversion-hub')?.scrollIntoView({ behavior: 'smooth' })
-                                }, [
-                                    React.createElement('span', {
-                                        key: 'cta-text',
-                                        className: 'relative z-10'
-                                    }, 'Book an AI Strategy Call'),
-                                    React.createElement('div', {
-                                        key: 'cta-effect',
-                                        className: 'absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full opacity-0 group-hover:opacity-30 transition-opacity duration-300 animate-pulse'
-                                    })
-                                ]),
-                                
-                                React.createElement('button', {
-                                    key: 'secondary-cta',
-                                    className: 'px-8 py-4 border-2 border-gray-400 rounded-full text-lg font-semibold hover:border-white hover:bg-white/10 transition-all duration-300'
-                                }, 'Watch 90-Second Demo')
+                                React.createElement('span', {
+                                    key: 'cta-text',
+                                    className: 'relative z-10'
+                                }, 'Book an AI Strategy Call'),
+                                React.createElement('div', {
+                                    key: 'cta-effect',
+                                    className: 'absolute inset-0 bg-gradient-to-r from-amber-400 to-orange-400 rounded-full opacity-0 group-hover:opacity-30 transition-opacity duration-300 animate-pulse'                                })
+                            ]),
+                            
+                            React.createElement('button', {
+                                key: 'secondary-cta',
+                                className: 'px-8 py-4 border-2 border-gray-400 rounded-full text-lg font-semibold hover:border-white hover:bg-white/10 transition-all duration-300',
+                                onClick: () => window.open('https://funnelassistant.io', '_blank')
+                            }, 'Watch 90-Second Demo')
+                        ]),// Feature highlights with icons
+                        React.createElement('div', {
+                            key: 'feature-highlights',
+                            className: 'grid grid-cols-1 md:grid-cols-3 gap-8 mt-16'
+                        }, [                            React.createElement('div', {
+                                key: 'feature-1',
+                                className: 'feature-card group text-center p-6 rounded-lg bg-white/20 backdrop-blur-xl border border-white/30 hover:border-white/50 hover:bg-white/25 transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-amber-500/20'
+                            }, [
+                                React.createElement('div', {
+                                    key: 'icon-1',
+                                    className: 'text-4xl mb-4 transform group-hover:scale-110 transition-transform duration-300 animate-float'
+                                }, '⚡'),                                React.createElement('h3', {
+                                    key: 'title-1',
+                                    className: 'text-xl font-semibold mb-2 text-amber-400'
+                                }, 'Lightning Fast'),
+                                React.createElement('p', {
+                                    key: 'desc-1',
+                                    className: 'text-gray-400 text-sm'
+                                }, 'Deploy in days, not months')
+                            ]),                            React.createElement('div', {
+                                key: 'feature-2',
+                                className: 'feature-card group text-center p-6 rounded-lg bg-white/20 backdrop-blur-xl border border-white/30 hover:border-white/50 hover:bg-white/25 transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-orange-500/20'
+                            }, [
+                                React.createElement('div', {
+                                    key: 'icon-2',
+                                    className: 'text-4xl mb-4 transform group-hover:scale-110 transition-transform duration-300 animate-float',
+                                    style: { animationDelay: '0.5s' }
+                                }, '🎯'),                                React.createElement('h3', {
+                                    key: 'title-2',
+                                    className: 'text-xl font-semibold mb-2 text-orange-400'
+                                }, 'Tailored Solutions'),
+                                React.createElement('p', {
+                                    key: 'desc-2',
+                                    className: 'text-gray-400 text-sm'
+                                }, 'Built specifically for your business')
+                            ]),                            React.createElement('div', {
+                                key: 'feature-3',
+                                className: 'feature-card group text-center p-6 rounded-lg bg-white/20 backdrop-blur-xl border border-white/30 hover:border-white/50 hover:bg-white/25 transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-yellow-500/20'
+                            }, [
+                                React.createElement('div', {
+                                    key: 'icon-3',
+                                    className: 'text-4xl mb-4 transform group-hover:scale-110 transition-transform duration-300 animate-float',
+                                    style: { animationDelay: '1s' }
+                                }, '📈'),                                React.createElement('h3', {
+                                    key: 'title-3',
+                                    className: 'text-xl font-semibold mb-2 text-yellow-400'
+                                }, 'Proven ROI'),                                React.createElement('p', {
+                                    key: 'desc-3',
+                                    className: 'text-gray-400 text-sm'
+                                }, 'Up to 300% efficiency gain')
                             ])
                         ])
                     ]),
@@ -412,96 +494,118 @@
                         React.createElement('div', {
                             key: 'scroll-mouse',
                             className: 'w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center'
-                        }, [
-                            React.createElement('div', {
+                        }, [                            React.createElement('div', {
                                 key: 'scroll-dot',
-                                className: 'w-1 h-3 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full mt-2 animate-bounce'
+                                className: 'w-1 h-3 bg-gradient-to-b from-amber-500 to-orange-500 rounded-full mt-2 animate-bounce'
                             })
                         ])
                     ])
-                ]),
-        
-                // Service Galaxy
+                ]),                // Microsoft Partnership Section
                 React.createElement('section', {
-                    key: 'service-galaxy',
-                    className: 'py-16'
+                    key: 'microsoft-partnership',
+                    className: 'py-24 px-4'
                 }, [
                     React.createElement('div', {
-                        key: 'galaxy-header',
-                        className: 'text-center mb-16'
-                    }, [
-                        React.createElement('h2', {
-                            key: 'galaxy-title',
-                            className: 'text-5xl font-bold mb-8'
+                        key: 'microsoft-container',
+                        className: 'max-w-7xl mx-auto'
+                    }, [                        React.createElement('div', {
+                            key: 'microsoft-content',
+                            className: 'grid grid-cols-1 lg:grid-cols-2 gap-12 items-center'
                         }, [
-                            'AI Solutions ',
-                            React.createElement('span', {
-                                key: 'universe-highlight',
-                                className: 'text-purple-500'
-                            }, 'Universe')
-                        ]),
-                        React.createElement('p', {
-                            key: 'galaxy-subtitle',
-                            className: 'text-xl text-gray-300 max-w-3xl mx-auto'
-                        }, 'Explore our constellation of AI services. Hover over each planet to discover how we can transform your business operations.')
-                    ]),
-                    React.createElement(ServiceGalaxy, { key: 'galaxy' })
-                ]),
-        
-                // Problem Section
+                            // Left side - Microsoft badge (standalone card)
+                            React.createElement('div', {
+                                key: 'microsoft-badge',
+                                className: 'flex justify-center lg:justify-start'
+                            }, [                                React.createElement('div', {
+                                    key: 'badge-container',
+                                    className: 'bg-white/20 backdrop-blur-xl rounded-2xl border border-white/30 hover:border-yellow-500/50 transition-all duration-300 shadow-2xl hover:shadow-yellow-500/20 max-w-md overflow-hidden'
+                                }, [
+                                    React.createElement('img', {
+                                        key: 'microsoft-logo',
+                                        src: 'm4s-badge.avif',
+                                        alt: 'Microsoft for Startups Badge',
+                                        className: 'w-full h-full object-cover'
+                                    })
+                                ])
+                            ]),
+                            
+                            // Right side - Text content
+                            React.createElement('div', {
+                                key: 'microsoft-text',
+                                className: 'space-y-6'
+                            }, [                                React.createElement('h2', {
+                                    key: 'microsoft-title',
+                                    className: 'text-4xl lg:text-5xl font-bold text-yellow-500 mb-6 text-center'
+                                }, 'Antares Intelligence is now backed by Microsoft'),
+                                React.createElement('p', {
+                                    key: 'microsoft-para-1',
+                                    className: 'text-gray-300 text-lg leading-relaxed mb-4'
+                                }, 'We are thrilled to share that Antares Intelligence has officially partnered with Microsoft through its Microsoft for Startups program. This marks a pivotal milestone in our mission to make AI solutions accessible and affordable for small and medium-sized businesses.'),
+                                React.createElement('p', {
+                                    key: 'microsoft-para-2',
+                                    className: 'text-gray-300 text-lg leading-relaxed mb-4'
+                                }, 'By collaborating with one of the world\'s most trusted technology leaders, Antares Intelligence gains access to cutting-edge tools, resources, and infrastructure that will help us accelerate growth and deliver even more value to our customers. With Microsoft\'s support, we\'re better equipped to refine our AI solutions, enhance customer experiences, and drive innovation in every facet of our operations.'),
+                                React.createElement('p', {
+                                    key: 'microsoft-para-3',
+                                    className: 'text-gray-300 text-lg leading-relaxed mb-4'
+                                }, 'This partnership empowers us to scale our capabilities and bring AI closer to businesses of all sizes. It strengthens our mission to make AI affordable, accessible, and impactful for companies seeking smarter workflows, deeper insights, and meaningful growth.'),                                React.createElement('p', {
+                                    key: 'microsoft-para-4',
+                                    className: 'text-gray-300 text-lg leading-relaxed'
+                                }, 'We are immensely grateful for Microsoft\'s recognition and support of our vision. This collaboration will enable us to harness the power of advanced technologies to solve complex challenges and help our customers achieve their goals faster.')
+                            ])
+                        ])
+                    ])                ]),
+
+                // Services Section
+                React.createElement('section', {
+                    key: 'services',
+                    id: 'solutions',
+                    className: 'py-32 px-4'
+                }, [
+                    React.createElement(ServicesGrid, { key: 'services-grid' })
+                ]),// Problem Section
                 React.createElement('section', {
                     key: 'problem',
+                    id: 'benefits',
                     className: 'py-32 px-4'
                 }, [
                     React.createElement('div', {
                         key: 'problem-container',
                         className: 'max-w-6xl mx-auto'
-                    }, [
-                        React.createElement('h2', {
+                    }, [                        React.createElement('h2', {
                             key: 'problem-title',
-                            className: 'text-5xl font-bold text-center mb-16'
-                        }, [
-                            'The Hidden Cost of ',
-                            React.createElement('span', {
-                                key: 'problem-highlight',
-                                className: 'text-red-500'
-                            }, 'Manual Work')
-                        ]),
+                            className: 'text-5xl font-bold text-center mb-16 text-amber-500'
+                        }, 'The Hidden Cost of Manual Work'),
                         
                         React.createElement('div', {
                             key: 'problem-content',
                             className: 'grid grid-cols-1 lg:grid-cols-2 gap-16 items-center'
-                        }, [
-                            React.createElement('div', {
+                        }, [                            React.createElement('div', {
                                 key: 'problem-list',
                                 className: 'space-y-8'
-                            }, [
-                                React.createElement('div', {
-                                    key: 'time-drain',
-                                    className: 'space-y-4'
-                                }, [
-                                    React.createElement('h3', {
-                                        key: 'time-title',
+                            }, [                                React.createElement('div', {
+                                    key: 'main-problem',
+                                    className: 'space-y-4 mb-8'
+                                }, [                                    React.createElement('h3', {
+                                        key: 'time-drain-title',
                                         className: 'text-2xl font-semibold text-yellow-500'
-                                    }, '⏰ Time Drain'),
-                                    React.createElement('p', {
-                                        key: 'time-desc',
+                                    }, '⏰ Time Drain'),React.createElement('p', {
+                                        key: 'main-problem-text',
                                         className: 'text-gray-300 text-lg'
-                                    }, 'Your team spends 60% of their time on repetitive tasks instead of strategic work that drives growth.')
+                                    }, 'Your team spends significant time every day on low-value, repetitive tasks instead of strategic work that drives growth.')
                                 ]),
                                 
                                 React.createElement('div', {
-                                    key: 'revenue-loss',
+                                    key: 'payroll-waste',
                                     className: 'space-y-4'
-                                }, [
-                                    React.createElement('h3', {
-                                        key: 'revenue-title',
-                                        className: 'text-2xl font-semibold text-red-500'
-                                    }, '💸 Revenue Loss'),
+                                }, [                                    React.createElement('h3', {
+                                        key: 'payroll-title',
+                                        className: 'text-2xl font-semibold text-yellow-500'
+                                    }, '💸 Payroll Waste'),
                                     React.createElement('p', {
-                                        key: 'revenue-desc',
+                                        key: 'payroll-desc',
                                         className: 'text-gray-300 text-lg'
-                                    }, 'Manual processes lead to errors, delays, and missed opportunities worth millions annually.')
+                                    }, 'Those unproductive hours cost about US $1.7 M per 100 employees every year.')
                                 ]),
                                 
                                 React.createElement('div', {
@@ -510,31 +614,24 @@
                                 }, [
                                     React.createElement('h3', {
                                         key: 'scaling-title',
-                                        className: 'text-2xl font-semibold text-blue-500'
+                                        className: 'text-2xl font-semibold text-yellow-500'
                                     }, '🔄 Scaling Barriers'),
                                     React.createElement('p', {
                                         key: 'scaling-desc',
                                         className: 'text-gray-300 text-lg'
-                                    }, 'Growing means hiring more people to do the same repetitive work, limiting your profit margins.')
+                                    }, '60% of roles already have ≥ 30% of tasks that can be automated, so scaling without automation means adding head-count rather than output.')
                                 ])
                             ]),
-                            
-                            React.createElement('div', {
+                              React.createElement('div', {
                                 key: 'problem-stats',
-                                className: 'relative h-96 bg-gradient-to-br from-red-900/20 to-yellow-900/20 rounded-lg p-8 backdrop-blur-sm border border-red-500/30'
-                            }, [
-                                React.createElement('div', {
+                                className: 'relative h-96 bg-gradient-to-br from-orange-900/20 to-amber-900/20 rounded-lg p-8 backdrop-blur-sm border border-orange-500/30'
+                            }, [                                React.createElement('div', {
                                     key: 'stats-content',
-                                    className: 'text-center'
-                                }, [
-                                    React.createElement('div', {
+                                    className: 'flex flex-col items-center justify-center h-full text-center'
+                                }, [                                    React.createElement('div', {
                                         key: 'main-stat',
-                                        className: 'text-6xl font-bold text-red-500 mb-4'
-                                    }, '$2.3M'),
-                                    React.createElement('div', {
-                                        key: 'main-stat-label',
-                                        className: 'text-xl text-gray-300 mb-6'
-                                    }, 'Lost annually to inefficiency'),
+                                        className: 'text-2xl font-semibold text-yellow-500 mb-8'
+                                    }, 'Productivity Impact per 100 Employees'),
                                     
                                     React.createElement('div', {
                                         key: 'sub-stats',
@@ -543,10 +640,9 @@
                                         React.createElement('div', {
                                             key: index,
                                             className: 'text-center p-4 bg-black/30 rounded-lg'
-                                        }, [
-                                            React.createElement('div', {
+                                        }, [                                            React.createElement('div', {
                                                 key: 'stat-value',
-                                                className: 'text-2xl font-bold text-yellow-500'
+                                                className: 'text-2xl font-bold text-amber-500'
                                             }, stat.value),
                                             React.createElement('div', {
                                                 key: 'stat-label',
@@ -558,60 +654,266 @@
                             ])
                         ])
                     ])
+                ]),                // Product Showcase
+                React.createElement('section', {
+                    key: 'product-showcase',
+                    className: 'py-32 px-4'
+                }, [
+                    React.createElement('div', {
+                        key: 'showcase-container',
+                        className: 'max-w-7xl mx-auto'
+                    }, [                        React.createElement('h2', {
+                            key: 'showcase-title',
+                            className: 'text-5xl font-bold text-center mb-16 text-yellow-500'
+                        }, 'End-to-End Solution'),React.createElement('div', {
+                            key: 'products-grid',
+                            className: 'relative space-y-20'
+                        }, [                            // Central timeline line
+                            React.createElement('div', {
+                                key: 'central-timeline',
+                                className: 'absolute left-1/2 transform -translate-x-1/2 w-1 bg-gradient-to-b from-amber-500 to-yellow-500 h-full z-0'
+                            }),
+                            
+                            // Sales Intelligence Card (Left Side)
+                            React.createElement('div', {
+                                key: 'sales-intelligence',
+                                className: 'relative flex items-center justify-start'
+                            }, [                                // Left card
+                                React.createElement('div', {
+                                    key: 'sales-card',
+                                    className: 'w-2/5 bg-white/20 backdrop-blur-xl rounded-2xl p-6 border border-white/30 hover:border-amber-400/70 hover:bg-white/25 mr-auto relative z-10 shadow-2xl hover:shadow-amber-500/20 transition-all duration-300'
+                                }, [
+                                    React.createElement('div', {
+                                        key: 'sales-icon',
+                                        className: 'text-4xl mb-4 text-center'
+                                    }, '📊'),                                    React.createElement('h3', {
+                                        key: 'sales-title',
+                                        className: 'text-xl font-bold text-amber-400 mb-3 text-center'
+                                    }, 'Sales Intelligence'),
+                                    React.createElement('p', {
+                                        key: 'sales-subtitle',
+                                        className: 'text-gray-300 text-center mb-6 leading-relaxed'
+                                    }, 'Comprehensive lead research, ICP alignment, scoring, personality analysis, customized outreach.'),
+                                    
+                                    React.createElement('div', {
+                                        key: 'sales-benefits',
+                                        className: 'space-y-4 mb-6'
+                                    }, [
+                                        React.createElement('div', {
+                                            key: 'benefit-1',
+                                            className: 'space-y-2'
+                                        }, [                                            React.createElement('h4', {
+                                                key: 'benefit-1-title',
+                                                className: 'text-yellow-400 font-semibold leading-relaxed'
+                                            }, 'Prioritize the Leads That Matter:'),
+                                            React.createElement('p', {
+                                                key: 'benefit-1-desc',
+                                                className: 'text-gray-300 leading-relaxed'
+                                            }, 'Let AI pinpoint your top opportunities by creating a custom scoring criteria based on your company profile and ICP. Every lead ranked, every insight delivered. Zero sweat, all the glory.')
+                                        ]),
+                                        React.createElement('div', {
+                                            key: 'benefit-2',
+                                            className: 'space-y-2'
+                                        }, [                                            React.createElement('h4', {
+                                                key: 'benefit-2-title',
+                                                className: 'text-yellow-400 font-semibold leading-relaxed'
+                                            }, 'Get Your Day Back:'),
+                                            React.createElement('p', {
+                                                key: 'benefit-2-desc',
+                                                className: 'text-gray-300 leading-relaxed'
+                                            }, 'Free up 2 hours per rep daily to close more deals, not grind spreadsheets.')
+                                        ]),
+                                        React.createElement('div', {
+                                            key: 'benefit-3',
+                                            className: 'space-y-2'
+                                        }, [                                            React.createElement('h4', {
+                                                key: 'benefit-3-title',
+                                                className: 'text-yellow-400 font-semibold leading-relaxed'
+                                            }, 'Game Changing Results:'),
+                                            React.createElement('p', {
+                                                key: 'benefit-3-desc',
+                                                className: 'text-gray-300 leading-relaxed'
+                                            }, 'Up to 20% more conversions, zero extra effort.')
+                                        ]),
+                                        React.createElement('div', {
+                                            key: 'benefit-4',
+                                            className: 'space-y-2'
+                                        }, [                                            React.createElement('h4', {
+                                                key: 'benefit-4-title',
+                                                className: 'text-yellow-400 font-semibold leading-relaxed'
+                                            }, 'Effortless Personalization:'),
+                                            React.createElement('p', {
+                                                key: 'benefit-4-desc',
+                                                className: 'text-gray-300 leading-relaxed'
+                                            }, 'Make every touchpoint feel personal, no matter how many leads you\'re managing.')
+                                        ])
+                                    ])
+                                ])
+                            ]),
+                            
+                            // Contract Management Card (Right Side)
+                            React.createElement('div', {
+                                key: 'contract-management',
+                                className: 'relative flex items-center justify-end'
+                            }, [                                // Right card
+                                React.createElement('div', {
+                                    key: 'contract-card',
+                                    className: 'w-2/5 bg-white/20 backdrop-blur-xl rounded-2xl p-6 border border-white/30 hover:border-amber-400/70 hover:bg-white/25 ml-auto relative z-10 shadow-2xl hover:shadow-amber-500/20 transition-all duration-300'
+                                }, [
+                                    React.createElement('div', {
+                                        key: 'contract-icon',
+                                        className: 'text-4xl mb-4 text-center'
+                                    }, '📋'),                                    React.createElement('h3', {
+                                        key: 'contract-title',
+                                        className: 'text-xl font-bold text-amber-400 mb-3 text-center'
+                                    }, 'Contract Management'),
+                                    React.createElement('p', {
+                                        key: 'contract-subtitle',
+                                        className: 'text-gray-300 text-center mb-6 leading-relaxed'
+                                    }, 'Expert level Initial Review, Technical Analysis, Cost Estimation, PWIN, Proposal Draft. 10X your RFP responses.'),
+                                    
+                                    React.createElement('div', {
+                                        key: 'contract-benefits',
+                                        className: 'space-y-4 mb-6'
+                                    }, [
+                                        React.createElement('div', {
+                                            key: 'contract-benefit-1',
+                                            className: 'space-y-2'
+                                        }, [                                            React.createElement('h4', {
+                                                key: 'contract-benefit-1-title',
+                                                className: 'text-yellow-400 font-semibold leading-relaxed'
+                                            }, '1. Automated Compliance Analysis'),
+                                            React.createElement('p', {
+                                                key: 'contract-benefit-1-desc',
+                                                className: 'text-gray-300 leading-relaxed'
+                                            }, 'Quickly assess project guidelines and regulatory requirements. Identify potential licensing, certification, and compliance hurdles early.')
+                                        ]),
+                                        React.createElement('div', {
+                                            key: 'contract-benefit-2',
+                                            className: 'space-y-2'
+                                        }, [                                            React.createElement('h4', {
+                                                key: 'contract-benefit-2-title',
+                                                className: 'text-yellow-400 font-semibold leading-relaxed'
+                                            }, '2. Go/No-Go Decision Support'),
+                                            React.createElement('p', {
+                                                key: 'contract-benefit-2-desc',
+                                                className: 'text-gray-300 leading-relaxed'
+                                            }, 'AI-driven market and project fit evaluation. Clear rationales that highlight budget constraints, location mismatches, and relevant risk factors.')
+                                        ]),
+                                        React.createElement('div', {
+                                            key: 'contract-benefit-3',
+                                            className: 'space-y-2'
+                                        }, [                                            React.createElement('h4', {
+                                                key: 'contract-benefit-3-title',
+                                                className: 'text-yellow-400 font-semibold leading-relaxed'
+                                            }, '3. Resource Allocation & Risk Mitigation'),
+                                            React.createElement('p', {
+                                                key: 'contract-benefit-3-desc',
+                                                className: 'text-gray-300 leading-relaxed'
+                                            }, 'Intelligent resource forecasting to determine feasibility. Comprehensive risk assessments tailored to government contracting criteria.')
+                                        ]),
+                                        React.createElement('div', {
+                                            key: 'contract-benefit-4',
+                                            className: 'space-y-2'
+                                        }, [                                            React.createElement('h4', {
+                                                key: 'contract-benefit-4-title',
+                                                className: 'text-yellow-400 font-semibold leading-relaxed'
+                                            }, '4. Enhanced Bid Preparation'),
+                                            React.createElement('p', {
+                                                key: 'contract-benefit-4-desc',
+                                                className: 'text-gray-300 leading-relaxed'
+                                            }, 'Generate structured outlines for proposals and bids. Receive strategic recommendations on cost estimation, timelines, and best practices.')
+                                        ]),
+                                        React.createElement('div', {
+                                            key: 'contract-benefit-5',
+                                            className: 'space-y-2'
+                                        }, [                                            React.createElement('h4', {
+                                                key: 'contract-benefit-5-title',
+                                                className: 'text-yellow-400 font-semibold leading-relaxed'
+                                            }, '5. Seamless Collaboration'),
+                                            React.createElement('p', {
+                                                key: 'contract-benefit-5-desc',
+                                                className: 'text-gray-300 leading-relaxed'
+                                            }, 'Keep all stakeholders aligned via shared dashboards and real-time updates. Centralize relevant documents, notes, and analyses for easy reference.')
+                                        ])
+                                    ])
+                                ])
+                            ])
+                        ])
+                    ])
+                ]),                // Mission Statement Section
+                React.createElement('section', {
+                    key: 'mission',
+                    className: 'py-32 px-4'
+                }, [
+                    React.createElement('div', {
+                        key: 'mission-container',
+                        className: 'max-w-7xl mx-auto'
+                    }, [
+                        React.createElement('div', {
+                            key: 'mission-content',
+                            className: 'flex justify-center'
+                        }, [
+                            React.createElement('div', {
+                                key: 'mission-text',
+                                className: 'max-w-4xl text-center space-y-6'
+                            }, [                                React.createElement('p', {
+                                    key: 'mission-statement',
+                                    className: 'text-gray-300 text-xl leading-relaxed'
+                                }, 'Our mission is to democratize AI technology, making it straightforward and cost-effective for businesses of all sizes to implement and benefit from. We provide tailored solutions that are not only advanced but also practical, ensuring they align seamlessly with your unique business needs.')
+                            ])
+                        ])
+                    ])
                 ]),
-        
-                // Success Stories
+
+                // Success Stories - TEMPORARILY HIDDEN UNTIL REAL CLIENT TESTIMONIALS ARE AVAILABLE
+                /*
                 React.createElement('section', {
                     key: 'testimonials',
+                    id: 'testimonials',
                     className: 'py-32 px-4'
                 }, [
                     React.createElement('div', {
                         key: 'testimonials-container',
                         className: 'max-w-6xl mx-auto'
-                    }, [
-                        React.createElement('h2', {
+                    }, [                        React.createElement('h2', {
                             key: 'testimonials-title',
-                            className: 'text-5xl font-bold text-center mb-16'
-                        }, [
-                            'Success ',
-                            React.createElement('span', {
-                                key: 'stories-highlight',
-                                className: 'text-emerald-500'
-                            }, 'Stories')
-                        ]),
+                            className: 'text-5xl font-bold text-center mb-16 text-amber-500'
+                        }, 'Success Stories'),
                         
                         React.createElement('div', {
                             key: 'testimonials-grid',
-                            className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'
-                        }, testimonials.map((testimonial, index) => 
+                            className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'                        }, testimonials.map((testimonial, index) => 
                             React.createElement('div', {
                                 key: index,
-                                className: 'group relative'
-                            }, [
-                                React.createElement('div', {
+                                className: 'group relative h-80'
+                            }, [                                React.createElement('div', {
                                     key: 'card',
-                                    className: 'bg-gradient-to-br from-gray-800/50 to-gray-900/50 p-8 rounded-lg backdrop-blur-sm border border-gray-700 hover:border-emerald-500/50 transition-all duration-300 transform hover:scale-105'
-                                }, [
-                                    React.createElement('div', {
-                                        key: 'quote-mark',
-                                        className: 'text-4xl text-emerald-500 mb-4'
-                                    }, '"'),
-                                    React.createElement('p', {
-                                        key: 'quote',
-                                        className: 'text-gray-300 mb-6 italic'
-                                    }, testimonial.quote),
+                                    className: 'bg-white/20 backdrop-blur-xl p-8 rounded-lg border border-white/30 hover:border-amber-500/70 hover:bg-white/25 transition-all duration-300 transform hover:scale-105 h-full flex flex-col justify-between shadow-2xl hover:shadow-amber-500/20'
+                                }, [React.createElement('div', {
+                                        key: 'quote-section',
+                                        className: 'flex-grow'
+                                    }, [
+                                        React.createElement('div', {
+                                            key: 'quote-mark',
+                                            className: 'text-4xl text-amber-500 mb-4'
+                                        }, '"'),
+                                        React.createElement('p', {
+                                            key: 'quote',
+                                            className: 'text-gray-300 mb-6 italic leading-relaxed'
+                                        }, testimonial.quote)
+                                    ]),
                                     
                                     React.createElement('div', {
                                         key: 'author-section',
-                                        className: 'border-t border-gray-700 pt-4'
+                                        className: 'border-t border-gray-700 pt-4 mt-auto'
                                     }, [
                                         React.createElement('div', {
                                             key: 'author',
-                                            className: 'font-semibold text-white mb-2'
-                                        }, testimonial.author),
-                                        React.createElement('div', {
+                                            className: 'font-semibold text-white mb-2 text-sm'
+                                        }, testimonial.author),                                        React.createElement('div', {
                                             key: 'metric',
-                                            className: 'text-emerald-400 font-bold text-lg'
+                                            className: 'text-amber-400 font-bold text-lg'
                                         }, testimonial.metric)
                                     ])
                                 ]),
@@ -621,115 +923,108 @@
                                     className: 'absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-blue-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none'
                                 })
                             ])
-                        ))
-                    ])
-                ]),
-        
+                        ))                    ])
+                }),
+                */
+
                 // Conversion Hub
                 React.createElement('section', {
                     key: 'conversion-hub',
-                    id: 'conversion-hub',
+                    id: 'contact',
                     className: 'py-32 px-4'
                 }, [
                     React.createElement('div', {
                         key: 'conversion-container',
                         className: 'max-w-6xl mx-auto'
-                    }, [
-                        React.createElement('h2', {
+                    }, [                        React.createElement('h2', {
                             key: 'conversion-title',
-                            className: 'text-5xl font-bold text-center mb-16'
-                        }, [
-                            'Ready to ',
-                            React.createElement('span', {
-                                key: 'transform-highlight',
-                                className: 'text-green-500'
-                            }, 'Transform'),
-                            ' Your Business?'
-                        ]),
-                        
-                        React.createElement('div', {
+                            className: 'text-5xl font-bold text-center mb-16 text-amber-500'
+                        }, 'Ready to Transform Your Business?'),                        React.createElement('div', {
                             key: 'conversion-grid',
-                            className: 'grid grid-cols-1 lg:grid-cols-2 gap-16'
+                            className: 'grid grid-cols-1 lg:grid-cols-2 gap-8'
                         }, [
                             // Calendly Integration
                             React.createElement('div', {
                                 key: 'calendly-section',
-                                className: 'bg-gradient-to-br from-gray-800/50 to-gray-900/50 p-8 rounded-lg backdrop-blur-sm border border-gray-700'
-                            }, [
-                                React.createElement('h3', {
-                                    key: 'calendly-title',
-                                    className: 'text-2xl font-bold mb-6 text-center'
-                                }, 'Schedule Your AI Strategy Call'),
-                                React.createElement('div', {
-                                    key: 'calendly-widget',
-                                    className: 'calendly-inline-widget',
-                                    'data-url': 'https://calendly.com/admin-antaresintelligence/30min',
-                                    style: { minWidth: '320px', height: '600px' }
-                                })
-                            ]),
-                            
-                            // Alternative CTAs
-                            React.createElement('div', {
-                                key: 'alt-ctas',
-                                className: 'space-y-8'
-                            }, [
-                                React.createElement('div', {
-                                    key: 'playbook-cta',
-                                    className: 'bg-gradient-to-br from-blue-900/30 to-purple-900/30 p-8 rounded-lg backdrop-blur-sm border border-blue-500/30'
+                                className: 'group relative h-80'
+                            }, [                                React.createElement('div', {
+                                    key: 'calendly-card',
+                                    className: 'bg-white/20 backdrop-blur-xl p-8 rounded-lg border border-white/30 hover:border-amber-500/70 hover:bg-white/25 transition-all duration-300 transform hover:scale-105 h-full flex flex-col justify-between shadow-2xl hover:shadow-amber-500/20'
                                 }, [
-                                    React.createElement('h3', {
-                                        key: 'playbook-title',
-                                        className: 'text-2xl font-bold mb-4 text-blue-400'
-                                    }, '📊 AI Adoption Playbook'),
-                                    React.createElement('p', {
-                                        key: 'playbook-desc',
-                                        className: 'text-gray-300 mb-6'
-                                    }, 'Download our comprehensive guide to implementing AI in your business. 50+ pages of actionable insights and best practices.'),
+                                    React.createElement('div', {
+                                        key: 'calendly-content',
+                                        className: 'flex-grow'
+                                    }, [
+                                        React.createElement('div', {
+                                            key: 'calendly-icon',
+                                            className: 'text-4xl text-amber-500 mb-4'
+                                        }, '📅'),
+                                        React.createElement('h3', {
+                                            key: 'calendly-title',
+                                            className: 'text-xl font-bold text-white mb-3'
+                                        }, 'Schedule Your AI Strategy Call'),
+                                        React.createElement('p', {
+                                            key: 'calendly-desc',
+                                            className: 'text-gray-300 mb-6 italic leading-relaxed'
+                                        }, 'Book a personalized consultation to discover how AI can transform your specific business operations.')
+                                    ]),
                                     
                                     React.createElement('div', {
-                                        key: 'playbook-form',
-                                        className: 'space-y-4'
+                                        key: 'calendly-action',
+                                        className: 'border-t border-gray-700 pt-4 mt-auto'
                                     }, [
-                                        React.createElement('input', {
-                                            key: 'email-input',
-                                            type: 'email',
-                                            placeholder: 'Enter your email address',
-                                            className: 'w-full px-4 py-3 bg-black/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none'
-                                        }),
                                         React.createElement('button', {
-                                            key: 'download-btn',
-                                            className: 'w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg font-semibold hover:from-blue-500 hover:to-purple-500 transition-all duration-300'
-                                        }, 'Download Free Playbook')
+                                            key: 'calendly-btn',
+                                            className: 'w-full px-6 py-3 bg-amber-500 hover:bg-amber-600 text-black rounded-lg font-medium transition-colors duration-200',
+                                            onClick: () => window.open('https://calendly.com/admin-antaresintelligence/30min', '_blank')
+                                        }, 'Book Strategy Call')
                                     ])
-                                ]),
-                                
-                                React.createElement('div', {
-                                    key: 'chat-cta',
-                                    className: 'bg-gradient-to-br from-green-900/30 to-teal-900/30 p-8 rounded-lg backdrop-blur-sm border border-green-500/30'
+                                ])
+                            ]),
+                            
+                            // Demo Card
+                            React.createElement('div', {
+                                key: 'demo-section',
+                                className: 'group relative h-80'
+                            }, [                                React.createElement('div', {
+                                    key: 'demo-card',
+                                    className: 'bg-white/20 backdrop-blur-xl p-8 rounded-lg border border-white/30 hover:border-amber-500/70 hover:bg-white/25 transition-all duration-300 transform hover:scale-105 h-full flex flex-col justify-between shadow-2xl hover:shadow-amber-500/20'
                                 }, [
-                                    React.createElement('h3', {
-                                        key: 'chat-title',
-                                        className: 'text-2xl font-bold mb-4 text-green-400'
-                                    }, '💬 Live Chat Support'),
-                                    React.createElement('p', {
-                                        key: 'chat-desc',
-                                        className: 'text-gray-300 mb-6'
-                                    }, 'Have questions? Our AI experts are available 24/7 to discuss your specific needs and provide personalized recommendations.'),
+                                    React.createElement('div', {
+                                        key: 'demo-content',
+                                        className: 'flex-grow'
+                                    }, [
+                                        React.createElement('div', {
+                                            key: 'demo-icon',
+                                            className: 'text-4xl text-amber-500 mb-4'
+                                        }, '🎯'),
+                                        React.createElement('h3', {
+                                            key: 'demo-title',
+                                            className: 'text-xl font-bold text-white mb-3'
+                                        }, 'Watch 90-Second Demo'),
+                                        React.createElement('p', {
+                                            key: 'demo-desc',
+                                            className: 'text-gray-300 mb-6 italic leading-relaxed'
+                                        }, 'See our AI agents in action and understand how they can streamline your business processes.')
+                                    ]),
                                     
-                                    React.createElement('button', {
-                                        key: 'chat-btn',
-                                        className: 'w-full px-6 py-3 bg-gradient-to-r from-green-600 to-teal-600 rounded-lg font-semibold hover:from-green-500 hover:to-teal-500 transition-all duration-300'
-                                    }, 'Start Live Chat')
+                                    React.createElement('div', {
+                                        key: 'demo-action',
+                                        className: 'border-t border-gray-700 pt-4 mt-auto'
+                                    }, [                                        React.createElement('button', {
+                                            key: 'demo-btn',
+                                            className: 'w-full px-6 py-3 bg-transparent border-2 border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-black rounded-lg font-medium transition-all duration-200',
+                                            onClick: () => window.open('https://funnelassistant.io', '_blank')
+                                        }, 'Watch Demo')
+                                    ])
                                 ])
                             ])
                         ])
                     ])
-                ]),
-        
-                // Footer
+                ]),                // Footer
                 React.createElement('footer', {
                     key: 'footer',
-                    className: 'py-16 px-4 bg-gradient-to-t from-black to-gray-900 border-t border-gray-800'
+                    className: 'py-16 px-4 border-t border-gray-800'
                 }, [
                     React.createElement('div', {
                         key: 'footer-container',
@@ -737,48 +1032,22 @@
                     }, [
                         React.createElement('h3', {
                             key: 'footer-brand',
-                            className: 'text-2xl font-bold mb-4 text-blue-400'
-                        }, 'Antares Intelligence'),
-                        React.createElement('p', {
+                            className: 'text-2xl font-bold mb-4 text-amber-500'
+                        }, 'Antares Intelligence'),                        React.createElement('p', {
                             key: 'footer-desc',
                             className: 'text-gray-400 mb-8'
-                        }, 'Transforming businesses through custom AI solutions. Your partner in the AI revolution.'),
+                        }, 'Making AI solutions accessible and affordable for all.'),
                         React.createElement('div', {
                             key: 'footer-bottom',
                             className: 'border-t border-gray-800 pt-8 text-center text-gray-400'
-                        }, [
-                            React.createElement('p', {
+                        }, [                            React.createElement('p', {
                                 key: 'copyright'
-                            }, '© 2025 Antares Intelligence. All rights reserved. Empowering the future through AI.')
-                        ])
-                    ])
-                ]),
-        
-                // Chat Widget Integration
-                React.createElement('div', {
-                    key: 'chat-widget',
-                    id: 'chatbot-container',
-                    className: 'fixed bottom-6 right-6 z-50'
-                }, [
-                    React.createElement('div', {
-                        key: 'chat-button',
-                        className: 'w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full shadow-lg cursor-pointer hover:scale-110 transition-transform duration-300 flex items-center justify-center text-white text-2xl'
-                    }, '💬')
+                            }, '© 2024 Antares Intelligence Inc. All rights reserved.')])])
                 ])
             ]);
         }
-        
         // Render the app
         ReactDOM.render(React.createElement(AntaresLanding), document.getElementById('root'));
-    </script>
-    
-    <!-- Chatbot Integration -->
-    <script type="module">
-        import Chatbot from "https://cdn.jsdelivr.net/npm/flowise-embed/dist/web.js";
-        Chatbot.init({
-            chatflowid: "75e6cc05-010a-4f28-8cf5-82b705600e9d",
-            apiHost: "https://flowise-gk99.onrender.com"
-        });
     </script>
 </body>
 </html>
